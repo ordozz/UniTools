@@ -23,8 +23,8 @@ export const Shortener: React.FC = () => {
         body: JSON.stringify({ url }),
       });
       if (!res.ok) throw new Error();
-      const data = await res.json();
-      setShortUrl(`http://localhost:8000/${data.short_code}`);
+      const host = window.location.port === '5173' ? 'http://localhost:8000' : window.location.origin;
+      setShortUrl(`${host}/${data.short_code}`);
     } catch {
       setErrorMsg(s.error);
     } finally {
