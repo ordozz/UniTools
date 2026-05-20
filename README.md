@@ -36,41 +36,75 @@
 
 ---
 
-## 🚀 Установка и запуск (Installation & Setup)
+## 🚀 Запуск и развертывание (Deployment & Setup)
 
-Для локального запуска проекта вам понадобятся установленные **Docker** и **Docker Compose**.
+Для запуска проекта вам понадобятся установленные **Docker** и **Docker Compose**.
 
-### 1. Клонирование репозитория
-```bash
-git clone https://github.com/ordozz/UniTools.git
-cd UniTools
-```
+### 💻 Разработка (Local Development)
 
-### 2. Сборка и запуск контейнеров
-Запустите Docker Compose в фоновом режиме:
-```bash
-docker-compose up -d --build
-```
-Эта команда скачает нужные образы, соберет фронтенд и бэкенд, настроит PostgreSQL и запустит три сервиса:
-* **Frontend:** [http://localhost:5173](http://localhost:5173)
-* **Backend API:** [http://localhost:8000](http://localhost:8000)
-* **PostgreSQL:** порт `5432`
+В режиме разработки используются файлы настроек по умолчанию, а изменения в коде фронтенда (`frontend/src`) и бэкенда (`backend/app`) подхватываются автоматически без перезапуска контейнеров (hot reload через volumes).
 
-### 3. Перезапуск сервисов (при необходимости)
-Если вы хотите принудительно перезапустить все контейнеры:
+1. Скопируйте файл переменных окружения:
+   ```bash
+   cp .env.example .env
+   ```
+2. Запустите контейнеры:
+   ```bash
+   docker compose up -d --build
+   ```
+3. Сервисы будут доступны по адресам:
+   * **Фронтенд:** [http://localhost:5173](http://localhost:5173)
+   * **Бэкенд API:** [http://localhost:8000](http://localhost:8000)
+   * **PostgreSQL:** `localhost:5432`
+
+---
+
+### 🏭 Продакшн (Production - для клиентов)
+
+В продакшн-режиме код упаковывается в контейнеры, порты оптимизируются (фронтенд проксируется на стандартный порт `80`), а также автоматически настраиваются перезапуски сервисов при сбое.
+
+1. Скопируйте `.env.example` в `.env` и настройте переменные:
+   ```env
+   DB_USER=postgres
+   DB_PASSWORD=           # Придумайте надежный пароль
+   DB_NAME=unitools
+   API_URL=http://YOUR_SERVER_IP:8000/api
+   ```
+2. Запустите сборку с продакшн-конфигурацией:
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+   ```
+3. Сервисы будут доступны по адресам:
+   * **Фронтенд:** [http://YOUR_SERVER_IP](http://YOUR_SERVER_IP) (порт 80)
+   * **Бэкенд API:** [http://YOUR_SERVER_IP:8000](http://YOUR_SERVER_IP:8000)
+
+---
+
+## ⚙️ Управление проектом (Operations)
+
 ```bash
-docker-compose restart
-```
-Или только фронтенд-сервис:
-```bash
-docker-compose restart frontend
+# Остановить продакшн-сервер
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+
+# Посмотреть логи всех контейнеров в реальном времени
+docker compose logs -f
+
+# Перезапустить определенный сервис (например, backend)
+docker compose restart backend
 ```
 
 ---
 
-## ⚙️ Разработка (Development)
+## 📦 Что передавать клиентам (Deliverables)
 
-Контейнеры настроены на монтирование локальных директорий (`volumes`), поэтому любые изменения в коде фронтенда (`frontend/src`) или бэкенда (`backend/app`) автоматически подхватываются с помощью Hot Reload (HMR для Vite и автоперезапуск FastAPI).
+При передаче проекта клиенту для продакшн-развертывания отправляются **только** следующие файлы:
+* `docker-compose.yml` (базовая конфигурация)
+* `docker-compose.prod.yml` (продакшн-конфигурация)
+* `.env.example` (шаблон настроек)
+* `README.md` (эта инструкция)
+* Исходный код проектов `backend/` и `frontend/` (для сборки Docker-образов на сервере клиента)
+
+> ⚠️ **Важно:** Файл `docker-compose.override.yml` клиентам **не передается** — он предназначен только для локальной разработки.
 
 ---
 
