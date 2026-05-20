@@ -42,8 +42,11 @@ function AppInner() {
   return (
     <div className="app-shell">
       <aside className={`sidebar ${sidebarOpen ? 'open' : 'collapsed'}`}>
-        <div className="sidebar-header">
-          {sidebarOpen && <span className="brand">UniTools</span>}
+        <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: sidebarOpen ? 'space-between' : 'center', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+            <img src="/favicon.png" alt="UniTools Logo" style={{ width: '26px', height: '26px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />
+            {sidebarOpen && <span className="brand" style={{ fontSize: '1.2rem', fontWeight: 700, letterSpacing: '-0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>UniTools</span>}
+          </div>
           <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} title="Toggle sidebar">
             {sidebarOpen ? '◀' : '▶'}
           </button>
