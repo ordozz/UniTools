@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { copyToClipboard, pasteFromClipboard } from '../utils/clipboard';
 
 export const SqlInBuilder: React.FC = () => {
   const { t } = useApp();
@@ -17,11 +18,15 @@ export const SqlInBuilder: React.FC = () => {
     setCount(lines.length);
   };
 
-  const copy = () => {
+  const copy = async () => {
     if (!output) return;
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const ok = await copyToClipboard(output);
+    if (ok) { setCopied(true); setTimeout(() => setCopied(false), 2000); }
+  };
+
+  const handlePaste = async () => {
+    const text = await pasteFromClipboard();
+    if (text) { setInput(text); setOutput(''); setCount(null); }
   };
 
   const clear = () => { setInput(''); setOutput(''); setCount(null); setCopied(false); };
@@ -59,6 +64,7 @@ export const SqlInBuilder: React.FC = () => {
 
       <div className="flex-row" style={{ marginTop: '1.25rem' }}>
         <button className="btn-primary" onClick={handleConvert} disabled={!input.trim()}>{s.btnConvert}</button>
+        <button className="btn-secondary" onClick={handlePaste}>📋 {c.paste}</button>
         <button className="btn-secondary" onClick={copy} disabled={!output}>{copied ? c.copied : c.copy}</button>
         <button className="btn-ghost" onClick={clear} disabled={!input && !output}>{c.clear}</button>
       </div>

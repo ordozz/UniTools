@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { useApp } from '../context/AppContext';
+import { copyToClipboard, pasteFromClipboard } from '../utils/clipboard';
 
 type ToolType = 'json' | 'sql' | 'xml';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -10,6 +11,7 @@ export const FormatterCard: React.FC<{ type: ToolType }> = ({ type }) => {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const pageT = t[type as keyof typeof t] as { title: string; description: string };
   const editorTheme = theme === 'dark' ? 'vs-dark' : 'vs';
@@ -34,6 +36,23 @@ export const FormatterCard: React.FC<{ type: ToolType }> = ({ type }) => {
     }
   };
 
+  const handleCopy = async () => {
+    if (!code.trim()) return;
+    const ok = await copyToClipboard(code);
+    if (ok) { setCopied(true); setTimeout(() => setCopied(false), 2000); }
+  };
+
+  const handlePaste = async () => {
+    const text = await pasteFromClipboard();
+    if (text) setCode(text);
+  };
+
+  const handleClear = () => {
+    setCode('');
+    setErrorMsg(null);
+    setCopied(false);
+  };
+
   return (
     <div className="glass-card">
       <div className="mb-2">
@@ -44,6 +63,11 @@ export const FormatterCard: React.FC<{ type: ToolType }> = ({ type }) => {
         <button className="btn-primary" onClick={handleFormat} disabled={isLoading}>
           {isLoading ? t.common.formatting : t.common.formatBtn}
         </button>
+        <button className="btn-secondary" onClick={handlePaste}>📋 {t.common.paste}</button>
+        <button className="btn-secondary" onClick={handleCopy} disabled={!code.trim()}>
+          {copied ? t.common.copied : t.common.copy}
+        </button>
+        <button className="btn-ghost" onClick={handleClear} disabled={!code.trim()}>{t.common.clear}</button>
         {errorMsg && <span style={{ color: 'var(--error)', fontWeight: 500, fontSize: '0.9rem' }}>⚠ {errorMsg}</span>}
       </div>
       <div className="editor-container">

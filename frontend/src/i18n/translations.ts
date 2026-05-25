@@ -17,7 +17,7 @@ export const translations = {
     },
     common: {
       formatBtn: 'Format & Validate', formatting: 'Formatting…',
-      copy: 'Copy Result', copied: '✓ Copied!', clear: 'Clear',
+      copy: 'Copy Result', copied: '✓ Copied!', clear: 'Clear', paste: 'Paste',
       serverError: 'Failed to connect to the server.',
     },
     json: {
@@ -80,7 +80,7 @@ export const translations = {
     },
     common: {
       formatBtn: 'Форматировать и проверить', formatting: 'Обработка…',
-      copy: 'Скопировать', copied: '✓ Скопировано!', clear: 'Очистить',
+      copy: 'Скопировать', copied: '✓ Скопировано!', clear: 'Очистить', paste: 'Вставить',
       serverError: 'Не удалось подключиться к серверу.',
     },
     json: {
@@ -147,7 +147,7 @@ export const translations = {
     },
     common: {
       formatBtn: 'Форматувати і перевірити', formatting: 'Обробка…',
-      copy: 'Скопіювати', copied: '✓ Скопійовано!', clear: 'Очистити',
+      copy: 'Скопіювати', copied: '✓ Скопійовано!', clear: 'Очистити', paste: 'Вставити',
       serverError: 'Не вдалося підключитися до сервера.',
     },
     json: {

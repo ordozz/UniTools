@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { copyToClipboard, pasteFromClipboard } from '../utils/clipboard';
 
 type Mode = 'encode' | 'decode';
 
@@ -13,7 +14,7 @@ export const Base64Tool: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const reset = () => { setInput(''); setOutput(''); setError(null); };
+  const reset = () => { setInput(''); setOutput(''); setError(null); setCopied(false); };
 
   const handleConvert = () => {
     setError(null);
@@ -32,11 +33,15 @@ export const Base64Tool: React.FC = () => {
     setInput(output); setOutput(''); setError(null);
   };
 
-  const copy = () => {
+  const copy = async () => {
     if (!output) return;
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const ok = await copyToClipboard(output);
+    if (ok) { setCopied(true); setTimeout(() => setCopied(false), 2000); }
+  };
+
+  const handlePaste = async () => {
+    const text = await pasteFromClipboard();
+    if (text) { setInput(text); setOutput(''); setError(null); }
   };
 
   return (
@@ -65,6 +70,7 @@ export const Base64Tool: React.FC = () => {
           {mode === 'encode' ? b.btnEncode : b.btnDecode}
         </button>
         <button className="btn-secondary" onClick={handleSwap} disabled={!output}>{b.swap}</button>
+        <button className="btn-secondary" onClick={handlePaste}>📋 {c.paste}</button>
         <button className="btn-secondary" onClick={copy} disabled={!output}>{copied ? c.copied : c.copy}</button>
         <button className="btn-ghost" onClick={reset} disabled={!input && !output}>{c.clear}</button>
         {error && <span style={{ color: 'var(--error)', fontWeight: 500, fontSize: '0.9rem' }}>⚠ {error}</span>}

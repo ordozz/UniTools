@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { copyToClipboard, pasteFromClipboard } from '../utils/clipboard';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export const Shortener: React.FC = () => {
   const { t } = useApp();
   const s = t.shortener;
+  const c = t.common;
   const [url, setUrl] = useState('');
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,11 +35,15 @@ export const Shortener: React.FC = () => {
     }
   };
 
-  const copy = () => {
+  const copy = async () => {
     if (!shortUrl) return;
-    navigator.clipboard.writeText(shortUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const ok = await copyToClipboard(shortUrl);
+    if (ok) { setCopied(true); setTimeout(() => setCopied(false), 2000); }
+  };
+
+  const handlePaste = async () => {
+    const text = await pasteFromClipboard();
+    if (text) setUrl(text);
   };
 
   return (
@@ -45,8 +51,13 @@ export const Shortener: React.FC = () => {
       <div className="mb-4"><h1>{s.title}</h1><p>{s.description}</p></div>
       <form onSubmit={handleShorten} className="mb-4">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <input type="url" className="input-field" placeholder={s.placeholder}
-            value={url} onChange={(e) => setUrl(e.target.value)} required />
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input type="url" className="input-field" placeholder={s.placeholder}
+              value={url} onChange={(e) => setUrl(e.target.value)} required style={{ flex: 1 }} />
+            <button type="button" className="btn-secondary" onClick={handlePaste} style={{ flexShrink: 0 }}>
+              📋 {c.paste}
+            </button>
+          </div>
           <button type="submit" className="btn-primary" disabled={isLoading} style={{ padding: '0.85rem', fontSize: '1rem' }}>
             {isLoading ? s.shortening : s.btn}
           </button>
@@ -62,7 +73,7 @@ export const Shortener: React.FC = () => {
               {shortUrl}
             </a>
             <button className="btn-secondary" onClick={copy} style={{ flexShrink: 0 }}>
-              {copied ? t.common.copied : s.copy}
+              {copied ? c.copied : s.copy}
             </button>
           </div>
         </div>
